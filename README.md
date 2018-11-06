@@ -11,10 +11,14 @@ Use ```JSLog.min.js``` in production:
 ```html
 <script type="text/javascript" src="JSLog.min.js"></script>
 ```
+Project wiki: _work in progress..._
 
 ## Running the test
 
-In processing...
+Unit test: _work in progress..._
+
+Integration test:
+ * [PHP](https://github.com/rippetanks/PHP_example_JSLog)
 
 ## Versioning
 
