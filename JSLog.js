@@ -7,7 +7,7 @@
 /**
 *
 * @author Simone Martelli
-* @version 1.0.0
+* @version 1.1.0
 */
 const JSLog = (function() {
 
@@ -45,7 +45,8 @@ const JSLog = (function() {
   /**
   * Settings for the log library.
   *
-  * @prop {string} url        URL of the remote log server
+  * @prop {string} url_log    URL of the remote log server
+  * @prop {string} url_profile  URL of the remote profile server
   * @prop {number} entity     id of the entity to which the log refers
   * @prop {array} levels      log level
   * @prop {string} log_key    api key to access the service
@@ -53,13 +54,15 @@ const JSLog = (function() {
   * @prop {boolean} cache     true if the log cache is enabled, false otherwise
   * @prop {boolean} console_override      true if the library needs to intercept calls to standard console functions
   * @prop {boolean} enable_internal_log   log in the standard console special events
+  * @prop {boolean} enable_profile        enable profile feature
   * @prop {function} callback_success
   * @prop {function} callback_error
   * @private
   * @type {Object}
   */
   let settings = {
-    url: null,
+    url_log: null,
+    url_profile: null,
     entity: null,
     level: _LOG_LEVEL.TRACE,
     log_key: null,
@@ -67,6 +70,7 @@ const JSLog = (function() {
     cache: null,
     console_override: false,
     enable_internal_log: false,
+    enable_profile: false,
     callback_success: null,
     callback_error: null
   };
@@ -79,7 +83,7 @@ const JSLog = (function() {
   */
   function _ajax(data) {
     return $.ajax({
-      url: settings.url,
+      url: settings.url_log,
       method: 'POST',
       contentType: 'application/json',
       data: JSON.stringify(data),
@@ -94,6 +98,30 @@ const JSLog = (function() {
           _js_console.error('JSLog HTTP ' + xhr.status + '! ' + message);
         if(settings.callback_error)
           settings.callback_error(xhr, response, message);
+      }
+    });
+  }
+
+  /**
+  * Standard call to the profile server.
+  *
+  * @param {object} data
+  * @private
+  */
+  function _ajax_profile(data) {
+    data = jQuery.extend(data, body_cache);
+    return $.ajax({
+      url: settings.url_profile,
+      method: 'POST',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
+      success: function(data, response, xhr) {
+        if(settings.enable_internal_log)
+          _js_console.log('JSLog-Profile HTTP ' + xhr.status + '!');
+      },
+      error: function(xhr, response, message) {
+        if(settings.enable_internal_log)
+          _js_console.error('JSLog-Profile HTTP ' + xhr.status + '! ' + message);
       }
     });
   }
@@ -198,8 +226,8 @@ const JSLog = (function() {
     */
     init: function(options) {
       settings = jQuery.extend(settings, options);
-      if(!settings.url) {
-        console.warn("Please, set a URL!");
+      if(!settings.url_log) {
+        console.warn("Please, set a url_log!");
       }
       if(settings.console_override)
         this.override();
@@ -391,7 +419,42 @@ const JSLog = (function() {
     * Log level.
     * @public
     */
-    LOG_LEVEL: _LOG_LEVEL
+    LOG_LEVEL: _LOG_LEVEL,
+
+    /**
+    *
+    * @param {number}
+    * @public
+    */
+    profile: function(startTime, desc) {
+      if(!settings.enable_profile)
+        return -1;
+      // start profile
+      if(startTime == undefined) {
+        return new Date().getTime();
+      }
+      // end profile
+      else {
+        let now = new Date().getTime();
+        let time = now - startTime;
+        return _ajax_profile({'time': time, 'desc': desc});
+      }
+    },
+
+    /**
+    *
+    * @public
+    */
+    disableProfile: function() {
+      settings.enable_profile = false;
+    },
+    /**
+    *
+    * @public
+    */
+    enableProfile: function() {
+      settings.enable_profile = true;
+    }
 
   };
 })();
