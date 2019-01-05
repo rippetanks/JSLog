@@ -13,12 +13,43 @@ Use ```JSLog.min.js``` in production:
 ```
 Project wiki: _work in progress..._
 
-## Running the test
+## Call documentation
+
+* log: POST request with JSON body
+  ```json
+  [
+   {
+     "level": "TRACE",
+     "entity": 1,
+     "log_key": "KEY",
+     "message": "HELLO!",
+     "Host": "MyHost",
+     "UserAgent": "Mozilla...",
+     "datetime": "2019-05-01T12:00:00",
+     "httpCode": 0
+   },
+   ...
+  ]
+  ```
+* profile: POST request with JSON body
+  ```json
+  {
+    "entity": 1,
+    "log_key": "KEY",
+    "time": 1000,
+    "desc": "request_1"
+  }
+  ```
+  
+The fields _entity_, _log_key_, _Host_, _UserAgent_, _httpCode_ are optional for both.
+
+## Running test
 
 Unit test: _work in progress..._
 
-Integration test:
+See also:
  * [PHP](https://github.com/rippetanks/PHP_example_JSLog)
+ * [Java](https://github.com/rippetanks/JSLog_Java)
 
 ## Versioning
 
